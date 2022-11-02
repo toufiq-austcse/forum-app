@@ -1,10 +1,10 @@
 version: "3"
 services:
-  nest-boilerplate:
+  auth-service:
     build: .
-    hostname: nest-boilerplate
-    image: nest-boilerplate
-    container_name: nest-boilerplate
+    hostname: auth-svc
+    image: auth-svc
+    container_name: auth-svc
     restart: unless-stopped
     env_file: .env
     environment:

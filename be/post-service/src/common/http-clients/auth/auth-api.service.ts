@@ -11,7 +11,11 @@ export class AuthApiService {
 
   async validateToken(accessToken: string): Promise<UserInfo> {
     try {
-      let res = await firstValueFrom(this.httpService.get(`${AppConfigService.appConfig.AUTH_SVC_BASE_URL}/me`));
+      let res = await firstValueFrom(this.httpService.get(`${AppConfigService.appConfig.AUTH_SVC_BASE_URL}/v1/auth/me`, {
+        headers: {
+          'Authorization': accessToken
+        }
+      }));
       return res.data.data;
     } catch (err: any) {
       throw new Error(err);

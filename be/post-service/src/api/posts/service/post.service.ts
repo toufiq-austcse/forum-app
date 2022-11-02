@@ -3,7 +3,7 @@ import { PostRepository } from '../repository/post.repository';
 import { CreatePostReqDto, UpdatePostReqDto } from '../dto/req/post-req.dto';
 import { UserInfo } from '@common/http-clients/auth/dto/res/user-info.dto';
 import { Post } from '../entity/post.entity';
-import { PostResDto } from '../dto/res/post-res.dto';
+import { IndexPostResDto, PostResDto } from '../dto/res/post-res.dto';
 import { plainToInstance } from 'class-transformer';
 import { paginate } from 'nestjs-typeorm-paginate';
 
@@ -15,6 +15,7 @@ export class PostService {
   getPostObj(dto: CreatePostReqDto, user: UserInfo): Post {
     return this.postRepository.create({
       title: dto.title,
+      is_published: dto.is_published,
       content: dto.content,
       user_id: user.id
     });
@@ -54,7 +55,8 @@ export class PostService {
     });
   }
 
-  async indexPost(page: number, limit: number, user: UserInfo) {
-    return paginate<Post>(this.postRepository, { page, limit }, { user_id: user.id });
+  async indexPost(page: number, limit: number, user: UserInfo): Promise<IndexPostResDto> {
+    let res = await paginate<Post>(this.postRepository, { page, limit }, { user_id: user.id });
+    return plainToInstance(IndexPostResDto, res, { excludeExtraneousValues: true, enableImplicitConversion: true });
   }
 }

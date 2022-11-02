@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, plainToInstance, Transform } from 'class-transformer';
+import { PaginationMetaResDto } from '@common/dto/pagination-meta-res.dto';
 
 export class PostResDto {
   @ApiProperty()
@@ -29,4 +30,22 @@ export class PostResDto {
   @ApiProperty()
   @Expose()
   no_of_likes: number;
+}
+
+export class IndexPostResDto {
+  @ApiProperty()
+  @Expose()
+  @Transform(val => plainToInstance(PostResDto, val.obj.items, {
+    excludeExtraneousValues: true,
+    enableImplicitConversion: true
+  }))
+  posts: PostResDto[];
+
+  @ApiProperty()
+  @Expose()
+  @Transform(val => plainToInstance(PaginationMetaResDto, val.obj.meta, {
+    excludeExtraneousValues: true,
+    enableImplicitConversion: true
+  }))
+  pagination_meta: PaginationMetaResDto;
 }
