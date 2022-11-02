@@ -1,15 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { ApiModule } from './api/api.module';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as basicAuth from 'express-basic-auth';
 import { HttpExceptionFilter } from '@common/filters/http-exception.filter';
 import * as morgan from 'morgan';
 
-async function setupSwagger(app, port: number) {
+async function setupSwagger(app: INestApplication, port: number) {
 
   let swaggerDocPath = '/api-doc';
-  let { SWAGGER_USERNAME, SWAGGER_PASSWORD } = process.env;
+ // let { SWAGGER_USERNAME, SWAGGER_PASSWORD } = process.env;
 
   const config = new DocumentBuilder()
     .setTitle('Nest Boilerplate')
@@ -26,13 +25,13 @@ async function setupSwagger(app, port: number) {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  app.use(
-    [swaggerDocPath, swaggerDocPath + '-json'],
-    basicAuth({
-      challenge: true,
-      users: { [SWAGGER_USERNAME]: SWAGGER_PASSWORD }
-    })
-  );
+  // app.use(
+  //   [swaggerDocPath, swaggerDocPath + '-json'],
+  //   basicAuth({
+  //     challenge: true,
+  //     users: { [SWAGGER_USERNAME]: SWAGGER_PASSWORD }
+  //   })
+  // );
 
   SwaggerModule.setup(swaggerDocPath, app, document, {
     swaggerOptions: { persistAuthorization: true, ignoreGlobalPrefix: true }
@@ -50,7 +49,7 @@ async function bootstrap() {
     return remoteAddr.toString();
   });
 
-  app.use(morgan(':remote-addr :method :url :status :res[content-length] - :response-time ms'));
+  //app.use(morgan(':remote-addr :method :url :status :res[content-length] - :response-time ms'));
 
   app.useGlobalPipes(
     new ValidationPipe({

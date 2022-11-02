@@ -13,7 +13,7 @@ export class AuthApiService {
     try {
       let res = await firstValueFrom(this.httpService.get(`${AppConfigService.appConfig.AUTH_SVC_BASE_URL}/me`));
       return res.data.data;
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(err);
     }
   }

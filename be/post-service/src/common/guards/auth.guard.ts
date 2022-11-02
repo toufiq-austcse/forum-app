@@ -16,7 +16,7 @@ export class AuthGuard implements CanActivate {
       throw new BadRequestException('Authorization required in header');
     }
     let userInfo = await this.authApiService.validateToken(authorization);
-    request['user'] = userInfo;
+    (request as any)['user'] = userInfo;
     return true;
   }
 }

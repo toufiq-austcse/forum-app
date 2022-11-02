@@ -5,6 +5,7 @@ import { UserInfo } from '@common/http-clients/auth/dto/res/user-info.dto';
 import { Post } from '../entity/post.entity';
 import { PostResDto } from '../dto/res/post-res.dto';
 import { plainToInstance } from 'class-transformer';
+import { paginate } from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class PostService {
@@ -51,5 +52,9 @@ export class PostService {
     return plainToInstance(PostResDto, post, {
       excludeExtraneousValues: true, enableImplicitConversion: true
     });
+  }
+
+  async indexPost(page: number, limit: number, user: UserInfo) {
+    return paginate<Post>(this.postRepository, { page, limit }, { user_id: user.id });
   }
 }

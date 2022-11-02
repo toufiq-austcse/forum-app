@@ -20,6 +20,6 @@ export class CreatePostReqDto {
   is_published: boolean;
 }
 
-export class UpdatePostReqDto extends PickType(CreatePostReqDto, null) {
+export class UpdatePostReqDto extends PickType(CreatePostReqDto, []) {
 
 }
