@@ -8,10 +8,13 @@ import { Post } from '../entity/post.entity';
 import { plainToInstance } from 'class-transformer';
 import { CommentResDto, IndexCommentResDto } from '../dto/res/comment-res.dto';
 import { paginate } from 'nestjs-typeorm-paginate';
+import { AuthApiService } from '@common/http-clients/auth/auth-api.service';
 
 @Injectable()
 export class CommentService {
-  constructor(private repository: CommentRepository, private postRepository: PostRepository) {
+  constructor(private repository: CommentRepository, private postRepository: PostRepository,
+              private authApiService: AuthApiService) {
+
   }
 
   getCommentObj(post: Post, dto: CreateCommentReqDto, user: UserInfo): Comment {
@@ -43,7 +46,13 @@ export class CommentService {
       throw new NotFoundException('Post not found');
     }
     let res = await paginate<Comment>(this.repository, { page, limit }, { post });
-    console.log('res ', res);
+    let userIds = res.items.map(item => item.user_id);
+    let users = await this.authApiService.fetchUserList(userIds);
+    res.items.forEach(comment => {
+      if (users[comment.user_id]) {
+        (comment as any).user = users[comment.user_id];
+      }
+    });
     return plainToInstance(IndexCommentResDto, res, { excludeExtraneousValues: true, enableImplicitConversion: true });
   }
 

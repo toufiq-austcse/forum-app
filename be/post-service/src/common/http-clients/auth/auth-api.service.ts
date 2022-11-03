@@ -21,4 +21,15 @@ export class AuthApiService {
       throw new Error(err);
     }
   }
+
+  async fetchUserList(userIds: string[]): Promise<Record<string, UserInfo>> {
+    try {
+      let userList: Record<string, UserInfo> = {};
+      let res = await firstValueFrom(this.httpService.post(`${AppConfigService.appConfig.AUTH_SVC_BASE_URL}/v1/users`, userIds));
+      res.data.data.forEach((user: UserInfo) => userList[user.id] = user);
+      return userList;
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
 }
