@@ -33,7 +33,7 @@ export class PostResDto {
 }
 
 export class IndexPostResDto {
-  @ApiProperty()
+  @ApiProperty({ type: [PostResDto] })
   @Expose()
   @Transform(val => plainToInstance(PostResDto, val.obj.items, {
     excludeExtraneousValues: true,

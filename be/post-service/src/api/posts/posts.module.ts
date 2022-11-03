@@ -8,11 +8,12 @@ import { PostController } from './controller/post.controller';
 import { PostService } from './service/post.service';
 import { Comment } from './entity/comment.entity';
 import { Post } from './entity/post.entity';
+import { CommentService } from './service/comment.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Comment, Like, Post])],
   controllers: [PostController],
-  providers: [PostService, CommentRepository, LikeRepository, PostRepository]
+  providers: [PostService, CommentService, CommentRepository, LikeRepository, PostRepository]
 })
 export class PostsModule {
 }

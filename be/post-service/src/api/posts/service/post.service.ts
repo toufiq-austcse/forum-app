@@ -59,4 +59,5 @@ export class PostService {
     let res = await paginate<Post>(this.postRepository, { page, limit }, { user_id: user.id });
     return plainToInstance(IndexPostResDto, res, { excludeExtraneousValues: true, enableImplicitConversion: true });
   }
+
 }

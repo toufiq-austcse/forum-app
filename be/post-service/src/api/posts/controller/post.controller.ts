@@ -20,16 +20,19 @@ import { PostService } from '../service/post.service';
 import { ApiCreatedResponse, ApiOkResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@common/guards/auth.guard';
 import { ResponseInterceptor } from '@common/interceptors/response.interceptor';
+import { CreateCommentReqDto } from '../dto/req/comment-req.dto';
+import { CommentResDto } from '../dto/res/comment-res.dto';
+import { CommentService } from '../service/comment.service';
 
 @ApiTags('Posts')
 @Controller({ path: 'posts', version: '1' })
 @UseInterceptors(ResponseInterceptor)
 export class PostController {
-  constructor(private postService: PostService) {
+  constructor(private postService: PostService, private commentService: CommentService) {
   }
 
   @Get()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard(true))
   @ApiOkResponse({ type: SwaggerBaseApiResponse(IndexPostResDto, HttpStatus.OK) })
   @ApiSecurity('auth')
   async index(@Query('page', ParseIntPipe) page: number, @UserInfoDec() user: UserInfo): Promise<BaseApiResponse<IndexPostResDto>> {
@@ -43,7 +46,7 @@ export class PostController {
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard(true))
   @ApiOkResponse({ type: SwaggerBaseApiResponse(PostResDto, HttpStatus.OK) })
   @ApiSecurity('auth')
   async show(@Param('id', ParseIntPipe) id: number): Promise<BaseApiResponse<PostResDto>> {
@@ -55,7 +58,7 @@ export class PostController {
   }
 
   @Post()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard(true))
   @ApiCreatedResponse({ type: SwaggerBaseApiResponse(PostResDto, HttpStatus.CREATED) })
   @ApiSecurity('auth')
   async create(@Body() dto: CreatePostReqDto, @UserInfoDec() user: UserInfo): Promise<BaseApiResponse<PostResDto>> {
@@ -67,7 +70,7 @@ export class PostController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard(true))
   @ApiOkResponse({ type: SwaggerBaseApiResponse(PostResDto, HttpStatus.OK) })
   @ApiSecurity('auth')
   async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdatePostReqDto): Promise<BaseApiResponse<PostResDto>> {
@@ -77,5 +80,19 @@ export class PostController {
       data
     };
   }
+
+
+  @Post(':id/comments')
+  @UseGuards(AuthGuard(false))
+  @ApiSecurity('auth')
+  async createComment(@Param('id', ParseIntPipe) id: number, @Body() dto: CreateCommentReqDto,
+                      @UserInfoDec() user: UserInfo): Promise<BaseApiResponse<CommentResDto>> {
+    let data = await this.commentService.createComment(id, dto, user);
+    return {
+      message: null,
+      data
+    };
+  }
+
 
 }
