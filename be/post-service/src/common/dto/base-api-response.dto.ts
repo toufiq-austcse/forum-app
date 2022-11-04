@@ -59,7 +59,7 @@ export class BaseApiErrorObject {
 }
 
 export class BaseApiErrorResponse {
-  public status: number;
+  public status_code: number;
 
   @ApiProperty()
   public message: string;

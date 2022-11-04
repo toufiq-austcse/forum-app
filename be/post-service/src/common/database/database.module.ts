@@ -1,4 +1,4 @@
-import { Global, Logger, Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import dataSource from 'ormconfig';
 import { DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
@@ -10,8 +10,7 @@ import { ConfigService } from '@nestjs/config';
       provide: DataSource,
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
-        let dbName = configService.get('DB_NAME');
-        let db = await dataSource.initialize();
+        await dataSource.initialize();
         // const queryRunner = await db.createQueryRunner();
         // try {
         //   console.log('called');

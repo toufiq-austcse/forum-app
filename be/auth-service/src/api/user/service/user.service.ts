@@ -3,10 +3,11 @@ import { UserRepository } from '../repository/user.repository';
 import { LoginReqDto, SignUpReqDto } from '../dto/req/auth-req.dto';
 import { Error } from 'mongoose';
 import { UserDocument } from '../schema/user.schema';
-import { LoginResDto, SignUpResDto } from '../dto/res/auth-res.dto';
+import { LoginResDto, SignUpResDto, UserInfo } from '../dto/res/auth-res.dto';
 import { JwtService } from '@nestjs/jwt';
 import { plainToInstance } from 'class-transformer';
 import { checkPassword } from '@common/utils/index';
+import { FetchUserDetailsReqDto } from '../dto/req/user-req.dto';
 
 
 @Injectable()
@@ -72,5 +73,11 @@ export class UserService {
 
   async getUserByEmail(email: any): Promise<UserDocument> {
     return this.repository.findOne({ email });
+  }
+
+  async fetchUserList(body: FetchUserDetailsReqDto): Promise<UserInfo[]> {
+    let users = await this.repository.find({ _id: { $in: body.user_ids } });
+    return plainToInstance(UserInfo, users, { excludeExtraneousValues: true, enableImplicitConversion: true });
+
   }
 }

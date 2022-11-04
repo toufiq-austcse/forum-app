@@ -11,9 +11,26 @@ export class AuthApiService {
 
   async validateToken(accessToken: string): Promise<UserInfo> {
     try {
-      let res = await firstValueFrom(this.httpService.get(`${AppConfigService.appConfig.AUTH_SVC_BASE_URL}/me`));
+      let res = await firstValueFrom(this.httpService.get(`${AppConfigService.appConfig.AUTH_SVC_BASE_URL}/v1/auth/me`, {
+        headers: {
+          'Authorization': accessToken
+        }
+      }));
       return res.data.data;
-    } catch (err) {
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
+
+  async fetchUserList(userIds: string[]): Promise<Record<string, UserInfo>> {
+    try {
+      let userList: Record<string, UserInfo> = {};
+      let res = await firstValueFrom(this.httpService.post(`${AppConfigService.appConfig.AUTH_SVC_BASE_URL}/v1/users`, {
+        user_ids: userIds
+      }));
+      res.data.data.forEach((user: UserInfo) => userList[user.id] = user);
+      return userList;
+    } catch (err: any) {
       throw new Error(err);
     }
   }

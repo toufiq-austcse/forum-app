@@ -1,5 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { AppBaseEntity } from '@common/database/entity/base.entity';
+import { UserInfo } from '@common/http-clients/auth/dto/res/user-info.dto';
 
 @Entity({
   name: 'posts'
@@ -37,4 +38,6 @@ export class Post extends AppBaseEntity {
     default: 0
   })
   no_of_likes: number;
+
+  user: UserInfo;
 }

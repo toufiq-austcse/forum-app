@@ -3,17 +3,19 @@ import { PostRepository } from '../repository/post.repository';
 import { CreatePostReqDto, UpdatePostReqDto } from '../dto/req/post-req.dto';
 import { UserInfo } from '@common/http-clients/auth/dto/res/user-info.dto';
 import { Post } from '../entity/post.entity';
-import { PostResDto } from '../dto/res/post-res.dto';
+import { IndexFeedPostResDto, IndexPostResDto, PostResDto } from '../dto/res/post-res.dto';
 import { plainToInstance } from 'class-transformer';
+import { AuthApiService } from '@common/http-clients/auth/auth-api.service';
 
 @Injectable()
 export class PostService {
-  constructor(private postRepository: PostRepository) {
+  constructor(private postRepository: PostRepository, private authApiService: AuthApiService) {
   }
 
   getPostObj(dto: CreatePostReqDto, user: UserInfo): Post {
     return this.postRepository.create({
       title: dto.title,
+      is_published: dto.is_published,
       content: dto.content,
       user_id: user.id
     });
@@ -51,5 +53,29 @@ export class PostService {
     return plainToInstance(PostResDto, post, {
       excludeExtraneousValues: true, enableImplicitConversion: true
     });
+  }
+
+  async indexPost(page: number, limit: number, user: UserInfo): Promise<IndexPostResDto> {
+    let res = await this.postRepository.filterPosts({ page, limit, user_id: user.id, sort_by_created_at: 'DESC' });
+    return plainToInstance(IndexPostResDto, res, { excludeExtraneousValues: true, enableImplicitConversion: true });
+  }
+
+  mapPostUser(users: Record<string, UserInfo>, post: Post): Post {
+    if (users[post.user_id]) {
+      post.user = users[post.user_id];
+    }
+    return post;
+  }
+
+  async mapPostsUser(posts: Post[]): Promise<Post[]> {
+    let userIds = posts.map(item => item.user_id).filter(item => item !== null);
+    let users = await this.authApiService.fetchUserList(userIds);
+    return posts.map(comment => this.mapPostUser(users, comment));
+  }
+
+  async getFeedPosts(page: number, limit: number): Promise<IndexFeedPostResDto> {
+    let res = await this.postRepository.filterPosts({ page, limit, is_published: true, sort_by_created_at: 'DESC' });
+    await this.mapPostsUser(res.items);
+    return plainToInstance(IndexFeedPostResDto, res, { excludeExtraneousValues: true, enableImplicitConversion: true });
   }
 }

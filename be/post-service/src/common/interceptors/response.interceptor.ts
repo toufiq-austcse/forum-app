@@ -9,7 +9,7 @@ export class ResponseInterceptor implements NestInterceptor {
     return next.handle().pipe(
       map((res) => {
         return {
-          status: statusCode,
+          status_code: statusCode,
           message: res.message,
           errors: [],
           data: res.data,

@@ -8,6 +8,7 @@ import { getHashedPassword } from '@common/utils/index';
 import { JwtModule } from '@nestjs/jwt';
 import { AppConfigService } from '@common/app-config/service/app-config.service';
 import { JwtStrategy } from './strategy/jwt.strategy';
+import { UserController } from './controller/user.controller';
 
 
 @Module({
@@ -29,7 +30,7 @@ import { JwtStrategy } from './strategy/jwt.strategy';
       return schema;
     }
   }])],
-  controllers: [AuthController],
+  controllers: [AuthController, UserController],
   providers: [UserService, UserRepository, JwtStrategy],
   exports: [UserService]
 })

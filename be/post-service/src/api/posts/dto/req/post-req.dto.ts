@@ -1,5 +1,5 @@
 import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 
 export class CreatePostReqDto {
 
@@ -20,6 +20,6 @@ export class CreatePostReqDto {
   is_published: boolean;
 }
 
-export class UpdatePostReqDto extends PickType(CreatePostReqDto, null) {
+export class UpdatePostReqDto extends PartialType(CreatePostReqDto) {
 
 }
