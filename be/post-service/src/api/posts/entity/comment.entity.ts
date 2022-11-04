@@ -9,6 +9,9 @@ export class Comment extends AppBaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  post_id: number;
+
   @ManyToOne(() => Post, (post) => post.id)
   @JoinColumn({ name: 'post_id' })
   post: Post;

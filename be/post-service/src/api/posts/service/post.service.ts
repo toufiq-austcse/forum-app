@@ -60,4 +60,5 @@ export class PostService {
     return plainToInstance(IndexPostResDto, res, { excludeExtraneousValues: true, enableImplicitConversion: true });
   }
 
+
 }

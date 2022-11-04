@@ -12,13 +12,14 @@ import { AuthApiService } from '@common/http-clients/auth/auth-api.service';
 
 @Injectable()
 export class CommentService {
-  constructor(private repository: CommentRepository, private postRepository: PostRepository,
+  constructor(private commentRepository: CommentRepository,
+              private postRepository: PostRepository,
               private authApiService: AuthApiService) {
 
   }
 
   getCommentObj(post: Post, dto: CreateCommentReqDto, user: UserInfo): Comment {
-    return this.repository.create({
+    return this.commentRepository.create({
       post,
       user_id: user ? user.id : null,
       body: dto.body
@@ -31,7 +32,8 @@ export class CommentService {
       throw new NotFoundException('Post not found');
     }
     let commentObj = this.getCommentObj(post, dto, user);
-    let newComment = await this.repository.save(commentObj);
+    let newComment = await this.commentRepository.save(commentObj);
+    await this.postRepository.incrementNoOfComments(post.id);
     (newComment as any).user = user;
     return plainToInstance(CommentResDto, newComment, {
       excludeExtraneousValues: true,
@@ -61,7 +63,7 @@ export class CommentService {
     if (!post) {
       throw new NotFoundException('Post not found');
     }
-    let { items, meta } = await paginate<Comment>(this.repository, { page, limit }, {
+    let { items, meta } = await paginate<Comment>(this.commentRepository, { page, limit }, {
       post,
       select: ['id', 'body', 'user_id', 'createdAt', 'updatedAt']
     });
@@ -73,7 +75,7 @@ export class CommentService {
   }
 
   async showComment(id: number): Promise<CommentResDto> {
-    let comment = await this.repository.findOne({ where: { id } });
+    let comment = await this.commentRepository.findOne({ where: { id } });
     if (!comment) {
       throw new NotFoundException('Comment not found');
     }
@@ -82,14 +84,14 @@ export class CommentService {
   }
 
   async updateComment(id: number, body: UpdateCommentReqDto, user: UserInfo): Promise<CommentResDto> {
-    let comment = await this.repository.findOne({ where: { id } });
+    let comment = await this.commentRepository.findOne({ where: { id } });
     if (!comment) {
       throw new NotFoundException('Comment not found');
     }
     if (comment.user_id !== user.id) {
       throw new ForbiddenException('You are not allowed to update this comment');
     }
-    let updatedComment = await this.repository.save({ ...comment, ...body });
+    let updatedComment = await this.commentRepository.save({ ...comment, ...body });
     updatedComment = (await this.mapCommentsUser([updatedComment]))[0];
     return plainToInstance(CommentResDto, updatedComment, {
       excludeExtraneousValues: true,
@@ -98,13 +100,14 @@ export class CommentService {
   }
 
   async deleteComment(id: number, user: UserInfo): Promise<void> {
-    let comment = await this.repository.findOne({ where: { id } });
+    let comment = await this.commentRepository.findOne({ where: { id } });
     if (!comment) {
       throw new NotFoundException('Comment not found');
     }
     if (comment.user_id !== user.id) {
       throw new ForbiddenException('You are not allowed to update this comment');
     }
-    await this.repository.delete({ id });
+    await this.commentRepository.delete({ id });
+    await this.postRepository.decrementNoOfComments(comment.post_id);
   }
 }
