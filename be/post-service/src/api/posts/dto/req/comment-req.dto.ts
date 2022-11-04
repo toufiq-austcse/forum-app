@@ -1,4 +1,4 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateCommentReqDto {
@@ -13,6 +13,7 @@ export class CreateCommentReqDto {
   body: string;
 }
 
-export class UpdateCommentReqDto extends PartialType(CreateCommentReqDto) {
+export class UpdateCommentReqDto extends PartialType(OmitType(CreateCommentReqDto, ['post_id'] as const)) {
+
 
 }

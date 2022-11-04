@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CommentRepository } from '../repository/comment.repository';
 import { CreateCommentReqDto, UpdateCommentReqDto } from '../dto/req/comment-req.dto';
 import { UserInfo } from '@common/http-clients/auth/dto/res/user-info.dto';
@@ -40,20 +40,36 @@ export class CommentService {
 
   }
 
+  mapCommentUser(users: Record<string, UserInfo>, comment: Comment): Comment {
+    if (!comment.user_id) {
+      return comment;
+    }
+    if (users[comment.user_id]) {
+      comment.user = users[comment.user_id];
+    }
+    return comment;
+  }
+
+  async mapCommentsUser(comments: Comment[]): Promise<Comment[]> {
+    let userIds = comments.map(item => item.user_id).filter(item => item !== null);
+    let users = await this.authApiService.fetchUserList(userIds);
+    return comments.map(comment => this.mapCommentUser(users, comment));
+  }
+
   async fetchComments(id: number, page: number, limit: number): Promise<IndexCommentResDto> {
     let post = await this.postRepository.findOne({ where: { id } });
     if (!post) {
       throw new NotFoundException('Post not found');
     }
-    let res = await paginate<Comment>(this.repository, { page, limit }, { post });
-    let userIds = res.items.map(item => item.user_id);
-    let users = await this.authApiService.fetchUserList(userIds);
-    res.items.forEach(comment => {
-      if (users[comment.user_id]) {
-        (comment as any).user = users[comment.user_id];
-      }
+    let { items, meta } = await paginate<Comment>(this.repository, { page, limit }, {
+      post,
+      select: ['id', 'body', 'user_id', 'createdAt', 'updatedAt']
     });
-    return plainToInstance(IndexCommentResDto, res, { excludeExtraneousValues: true, enableImplicitConversion: true });
+    let comments = await this.mapCommentsUser(items);
+    return plainToInstance(IndexCommentResDto, { comments, meta }, {
+      excludeExtraneousValues: true,
+      enableImplicitConversion: true
+    });
   }
 
   async showComment(id: number): Promise<CommentResDto> {
@@ -61,25 +77,33 @@ export class CommentService {
     if (!comment) {
       throw new NotFoundException('Comment not found');
     }
+    comment = (await this.mapCommentsUser([comment]))[0];
     return plainToInstance(CommentResDto, comment, { excludeExtraneousValues: true, enableImplicitConversion: true });
   }
 
-  async updateComment(id: number, body: UpdateCommentReqDto): Promise<CommentResDto> {
+  async updateComment(id: number, body: UpdateCommentReqDto, user: UserInfo): Promise<CommentResDto> {
     let comment = await this.repository.findOne({ where: { id } });
     if (!comment) {
       throw new NotFoundException('Comment not found');
     }
+    if (comment.user_id !== user.id) {
+      throw new ForbiddenException('You are not allowed to update this comment');
+    }
     let updatedComment = await this.repository.save({ ...comment, ...body });
+    updatedComment = (await this.mapCommentsUser([updatedComment]))[0];
     return plainToInstance(CommentResDto, updatedComment, {
       excludeExtraneousValues: true,
       enableImplicitConversion: true
     });
   }
 
-  async deleteComment(id: number): Promise<void> {
+  async deleteComment(id: number, user: UserInfo): Promise<void> {
     let comment = await this.repository.findOne({ where: { id } });
     if (!comment) {
       throw new NotFoundException('Comment not found');
+    }
+    if (comment.user_id !== user.id) {
+      throw new ForbiddenException('You are not allowed to update this comment');
     }
     await this.repository.delete({ id });
   }

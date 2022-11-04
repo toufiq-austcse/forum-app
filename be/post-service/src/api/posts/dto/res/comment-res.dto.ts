@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, plainToInstance, Transform } from 'class-transformer';
 import { PaginationMetaResDto } from '@common/dto/pagination-meta-res.dto';
-import { PostResDto } from './post-res.dto';
 
 export class CommentUser {
   @ApiProperty()
@@ -10,6 +9,9 @@ export class CommentUser {
 }
 
 export class CommentResDto {
+  @ApiProperty()
+  @Expose()
+  id: string;
 
   @ApiProperty()
   @Expose()
@@ -29,9 +31,9 @@ export class CommentResDto {
 }
 
 export class IndexCommentResDto {
-  @ApiProperty({ type: [PostResDto] })
+  @ApiProperty({ type: [CommentResDto] })
   @Expose()
-  @Transform(val => plainToInstance(PostResDto, val.obj.items, {
+  @Transform(val => plainToInstance(CommentResDto, val.obj.comments, {
     excludeExtraneousValues: true,
     enableImplicitConversion: true
   }))

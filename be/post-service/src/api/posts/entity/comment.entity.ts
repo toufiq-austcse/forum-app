@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Post } from './post.entity';
 import { AppBaseEntity } from '@common/database/entity/base.entity';
+import { UserInfo } from '@common/http-clients/auth/dto/res/user-info.dto';
 
 @Entity({ name: 'comments' })
 export class Comment extends AppBaseEntity {
@@ -22,5 +23,7 @@ export class Comment extends AppBaseEntity {
     type: 'text'
   })
   body: string;
+
+  user: UserInfo;
 
 }
