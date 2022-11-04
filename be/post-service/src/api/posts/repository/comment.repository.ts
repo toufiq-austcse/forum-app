@@ -4,8 +4,8 @@ import { Comment } from '../entity/comment.entity';
 
 @Injectable()
 export class CommentRepository extends Repository<Comment> {
-  // @ts-ignore
-  constructor(private dataSource: DataSource) {
+
+  constructor(dataSource: DataSource) {
     super(Comment, dataSource.manager);
   }
 }

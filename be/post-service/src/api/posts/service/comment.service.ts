@@ -63,12 +63,12 @@ export class CommentService {
     if (!post) {
       throw new NotFoundException('Post not found');
     }
-    let { items, meta } = await paginate<Comment>(this.commentRepository, { page, limit }, {
+    let res = await paginate<Comment>(this.commentRepository, { page, limit }, {
       post,
       select: ['id', 'body', 'user_id', 'createdAt', 'updatedAt']
     });
-    let comments = await this.mapCommentsUser(items);
-    return plainToInstance(IndexCommentResDto, { comments, meta }, {
+    await this.mapCommentsUser(res.items);
+    return plainToInstance(IndexCommentResDto, res, {
       excludeExtraneousValues: true,
       enableImplicitConversion: true
     });

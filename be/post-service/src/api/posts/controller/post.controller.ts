@@ -14,7 +14,7 @@ import {
 import { CreatePostReqDto, UpdatePostReqDto } from '../dto/req/post-req.dto';
 import { UserInfoDec } from '@common/decorators/user-info.decorator';
 import { UserInfo } from '@common/http-clients/auth/dto/res/user-info.dto';
-import { IndexPostResDto, PostResDto } from '../dto/res/post-res.dto';
+import { IndexFeedPostResDto, IndexPostResDto, PostResDto } from '../dto/res/post-res.dto';
 import { BaseApiResponse, SwaggerBaseApiResponse } from '@common/dto/base-api-response.dto';
 import { PostService } from '../service/post.service';
 import { ApiCreatedResponse, ApiOkResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
@@ -40,6 +40,17 @@ export class PostController {
       data
     };
 
+  }
+
+  @Get('feed')
+  @ApiOkResponse({ type: SwaggerBaseApiResponse(IndexFeedPostResDto, HttpStatus.OK) })
+  async feed(@Query('page', ParseIntPipe) page: number): Promise<BaseApiResponse<IndexFeedPostResDto>> {
+    let limit = 20;
+    let data = await this.postService.getFeedPosts(page, limit);
+    return {
+      message: null,
+      data
+    };
   }
 
   @Get(':id')

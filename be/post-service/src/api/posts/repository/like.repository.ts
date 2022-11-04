@@ -4,8 +4,8 @@ import { Like } from '../entity/like.entity';
 
 @Injectable()
 export class LikeRepository extends Repository<Like> {
-  // @ts-ignore
-  constructor(private dataSource: DataSource) {
+
+  constructor(dataSource: DataSource) {
     super(Like, dataSource.manager);
   }
 }
