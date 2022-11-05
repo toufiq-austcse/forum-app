@@ -13,6 +13,7 @@ RUN node-prune
 
 FROM base AS dev
 COPY nest-cli.json \
+ ormconfig.ts \
   tsconfig.* \
 #  .eslintrc.js \
 #  .prettierrc \
@@ -31,7 +32,5 @@ COPY --from=base /app/package.json ./
 COPY --from=dev /app/dist/ ./dist/
 # get the node_modules from the intial cache
 COPY --from=base /app/node_modules/ ./node_modules/
-# expose application port
-EXPOSE 3000
 # start
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
