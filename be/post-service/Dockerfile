@@ -20,6 +20,7 @@ COPY nest-cli.json \
   ./
 # bring in src from context
 COPY ./src/ ./src/
+COPY ./migrations/ ./migrations/
 RUN yarn
 # RUN yarn lint
 RUN yarn build
