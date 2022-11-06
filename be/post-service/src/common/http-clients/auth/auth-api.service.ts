@@ -18,6 +18,7 @@ export class AuthApiService {
       }));
       return res.data.data;
     } catch (err: any) {
+      console.log(err);
       throw new Error(err);
     }
   }

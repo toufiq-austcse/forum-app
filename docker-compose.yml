@@ -1,0 +1,65 @@
+version: '3.7'
+
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+    networks:
+      - svc-network
+    volumes:
+      - .mongo/data/db:/data/db
+  mysql-database:
+    image: arm64v8/mysql:oracle
+    container_name: mysql-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: post_service_db
+      MYSQL_ROOT_PASSWORD: root
+    command:
+      - --default-authentication-plugin=mysql_native_password
+    volumes:
+      - .data:/var/lib/mysql
+    networks:
+      - svc-network
+    ports:
+      - 3306:3306
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql-database
+    environment:
+      PMA_HOST: mysql-database
+    networks:
+      - svc-network
+    ports:
+      - 8080:80
+  auth-service:
+    build: ./be/auth-service
+    restart: always
+    hostname: auth-svc
+    env_file: ./be/auth-service/.env
+    depends_on:
+      - mongodb
+    networks:
+      - svc-network
+    ports:
+      - "3001:3001"
+  post-service:
+    build: ./be/post-service
+    restart: always
+    hostname: post-svc
+    depends_on:
+      - mysql-database
+    env_file: ./be/post-service/.env
+    networks:
+      - svc-network
+    ports:
+      - "3000:3000"
+
+networks:
+  svc-network:
+    driver: bridge

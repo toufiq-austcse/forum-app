@@ -31,7 +31,5 @@ COPY --from=base /app/package.json ./
 COPY --from=dev /app/dist/ ./dist/
 # get the node_modules from the intial cache
 COPY --from=base /app/node_modules/ ./node_modules/
-# expose application port
-EXPOSE 3000
 # start
 CMD ["node", "dist/main"]
