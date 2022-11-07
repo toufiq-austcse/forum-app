@@ -17,10 +17,14 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Get Tag
+        id: get_tag
+        run: echo "::set-output name=short_ref::${GITHUB_REF#refs/heads/}-$(git rev-parse --short HEAD)"
+
       - name: Auth Service Build
         uses: docker/build-push-action@v3
         with:
           context: ./be/auth-service
           file: ./be/auth-service/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/auth-service:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/auth-service:${{steps.get_tag.outputs.short_ref}}
