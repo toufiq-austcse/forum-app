@@ -27,4 +27,4 @@ jobs:
           context: ./be/auth-service
           file: ./be/auth-service/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/auth-service:${{steps.get_tag.outputs.short_ref}}
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{secrets.SERVICE_NAME_PREFIX}}-auth-service:${{steps.get_tag.outputs.short_ref}}
