@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: auth-svc
-          image: 578965/forum-auth-service
+          image: 578965/forum-auth-service:master-fb0ab91
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
