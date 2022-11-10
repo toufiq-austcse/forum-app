@@ -2,4 +2,4 @@
 .mongo
 .data
 
-/deployments/auth-svc-unsealed-secret.yml
+**auth-svc-unsealed-secret.yml
