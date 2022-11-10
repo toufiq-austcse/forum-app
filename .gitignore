@@ -1,3 +1,5 @@
 /.idea
 .mongo
 .data
+
+./deployments/auth-svc-unsealed-secret.yml
