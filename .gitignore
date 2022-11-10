@@ -1,5 +1,3 @@
 /.idea
 .mongo
 .data
-
-**auth-svc-unsealed-secret.yml
