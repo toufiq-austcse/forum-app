@@ -1,15 +1,15 @@
 ## Forum Application
 
-> A Microservice based application built with Nest.js
+> A Microservice based application built with Node.js
 
 ### Architecture
 Backend consist of 2 services
 - Auth Service - responsible for login, sign-up, token validation, user management
-- Post Service- responsible for post, like & comment management
+- Post Service - responsible for post, like & comment management
 
 ### Technologies
 - Auth Service - Node.js, Nest.js, MongoDB
-- Post Service- Node.js, Nest.js, MySQL
+- Post Service - Node.js, Nest.js, MySQL
 - Github Actions
 - Docker
 - DockerHub
